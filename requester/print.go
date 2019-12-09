@@ -69,6 +69,10 @@ func formatNumber(duration float64) string {
 	return fmt.Sprintf("%4.4f", duration)
 }
 
+func formatNumberInt64(value int64) string {
+	return fmt.Sprintf("%d", value)
+}
+
 func formatNumberInt(duration int) string {
 	return fmt.Sprintf("%d", duration)
 }
@@ -124,5 +128,5 @@ Status code distribution:{{ range $code, $num := .StatusCodeDist }}
   [{{ $num }}]	{{ $err }}{{ end }}{{ end }}
 `
 	csvTmpl = `{{ $connLats := .ConnLats }}{{ $dnsLats := .DnsLats }}{{ $dnsLats := .DnsLats }}{{ $reqLats := .ReqLats }}{{ $delayLats := .DelayLats }}{{ $resLats := .ResLats }}{{ $statusCodeLats := .StatusCodes }}{{ $offsets := .Offsets}}{{ $sizes := .Sizes}}response-time,DNS+dialup,DNS,Request-write,Response-delay,Response-read,status-code,offset,size{{ range $i, $v := .Lats }}
-{{ formatNumber $v }},{{ formatNumber (index $connLats $i) }},{{ formatNumber (index $dnsLats $i) }},{{ formatNumber (index $reqLats $i) }},{{ formatNumber (index $delayLats $i) }},{{ formatNumber (index $resLats $i) }},{{ formatNumberInt (index $statusCodeLats $i) }},{{ formatNumber (index $offsets $i) }},{{ formatNumber (index $sizes $i) }}{{ end }}`
+{{ formatNumber $v }},{{ formatNumber (index $connLats $i) }},{{ formatNumber (index $dnsLats $i) }},{{ formatNumber (index $reqLats $i) }},{{ formatNumber (index $delayLats $i) }},{{ formatNumber (index $resLats $i) }},{{ formatNumberInt (index $statusCodeLats $i) }},{{ formatNumber (index $offsets $i) }},{{ formatNumberInt64 (index $sizes $i) }}{{ end }}`
 )

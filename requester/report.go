@@ -196,6 +196,8 @@ func (r *report) snapshot() Report {
 	sort.Float64s(r.resLats)
 	sort.Float64s(r.delayLats)
 
+	//TODO: add some stats for normal template
+
 	snapshot.Histogram = r.histogram()
 	snapshot.LatencyDistribution = r.latencies()
 

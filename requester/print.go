@@ -54,10 +54,11 @@ func newTemplate(output string) *template.Template {
 }
 
 var tmplFuncMap = template.FuncMap{
-	"formatNumber":    formatNumber,
-	"formatNumberInt": formatNumberInt,
-	"histogram":       histogram,
-	"jsonify":         jsonify,
+	"formatNumber":      formatNumber,
+	"formatNumberInt":   formatNumberInt,
+	"formatNumberInt64": formatNumberInt64,
+	"histogram":         histogram,
+	"jsonify":           jsonify,
 }
 
 func jsonify(v interface{}) string {

@@ -37,18 +37,20 @@ type report struct {
 	average  float64
 	rps      float64
 
-	avgConn     float64
-	avgDNS      float64
-	avgReq      float64
-	avgRes      float64
-	avgDelay    float64
-	connLats    []float64
-	dnsLats     []float64
-	reqLats     []float64
-	resLats     []float64
-	delayLats   []float64
-	offsets     []float64
-	statusCodes []int
+	avgConn       float64
+	avgDNS        float64
+	avgReq        float64
+	avgRes        float64
+	avgDelay      float64
+	avgThroughput float64
+	connLats      []float64
+	dnsLats       []float64
+	reqLats       []float64
+	resLats       []float64
+	delayLats     []float64
+	offsets       []float64
+	sizes         []int64
+	statusCodes   []int
 
 	results chan *result
 	done    chan bool
@@ -77,6 +79,7 @@ func newReport(w io.Writer, results chan *result, output string, n int) *report 
 		resLats:     make([]float64, 0, cap),
 		delayLats:   make([]float64, 0, cap),
 		lats:        make([]float64, 0, cap),
+		sizes:       make([]int64, 0, cap),
 		statusCodes: make([]int, 0, cap),
 	}
 }
@@ -103,6 +106,7 @@ func runReporter(r *report) {
 				r.resLats = append(r.resLats, res.resDuration.Seconds())
 				r.statusCodes = append(r.statusCodes, res.statusCode)
 				r.offsets = append(r.offsets, res.offset.Seconds())
+				r.sizes = append(r.sizes, res.contentLength)
 			}
 			if res.contentLength > 0 {
 				r.sizeTotal += res.contentLength
@@ -142,26 +146,28 @@ func (r *report) printf(s string, v ...interface{}) {
 
 func (r *report) snapshot() Report {
 	snapshot := Report{
-		AvgTotal:    r.avgTotal,
-		Average:     r.average,
-		Rps:         r.rps,
-		SizeTotal:   r.sizeTotal,
-		AvgConn:     r.avgConn,
-		AvgDNS:      r.avgDNS,
-		AvgReq:      r.avgReq,
-		AvgRes:      r.avgRes,
-		AvgDelay:    r.avgDelay,
-		Total:       r.total,
-		ErrorDist:   r.errorDist,
-		NumRes:      r.numRes,
-		Lats:        make([]float64, len(r.lats)),
-		ConnLats:    make([]float64, len(r.lats)),
-		DnsLats:     make([]float64, len(r.lats)),
-		ReqLats:     make([]float64, len(r.lats)),
-		ResLats:     make([]float64, len(r.lats)),
-		DelayLats:   make([]float64, len(r.lats)),
-		Offsets:     make([]float64, len(r.lats)),
-		StatusCodes: make([]int, len(r.lats)),
+		AvgTotal:      r.avgTotal,
+		Average:       r.average,
+		Rps:           r.rps,
+		SizeTotal:     r.sizeTotal,
+		AvgConn:       r.avgConn,
+		AvgDNS:        r.avgDNS,
+		AvgReq:        r.avgReq,
+		AvgRes:        r.avgRes,
+		AvgDelay:      r.avgDelay,
+		AvgThroughput: r.avgThroughput,
+		Total:         r.total,
+		ErrorDist:     r.errorDist,
+		NumRes:        r.numRes,
+		Lats:          make([]float64, len(r.lats)),
+		ConnLats:      make([]float64, len(r.lats)),
+		DnsLats:       make([]float64, len(r.lats)),
+		ReqLats:       make([]float64, len(r.lats)),
+		ResLats:       make([]float64, len(r.lats)),
+		DelayLats:     make([]float64, len(r.lats)),
+		Offsets:       make([]float64, len(r.lats)),
+		Sizes:         make([]int64, len(r.lats)),
+		StatusCodes:   make([]int, len(r.lats)),
 	}
 
 	if len(r.lats) == 0 {
@@ -178,6 +184,7 @@ func (r *report) snapshot() Report {
 	copy(snapshot.DelayLats, r.delayLats)
 	copy(snapshot.StatusCodes, r.statusCodes)
 	copy(snapshot.Offsets, r.offsets)
+	copy(snapshot.Sizes, r.sizes)
 
 	sort.Float64s(r.lats)
 	r.fastest = r.lats[0]
@@ -274,21 +281,22 @@ type Report struct {
 	Average  float64
 	Rps      float64
 
-	AvgConn  float64
-	AvgDNS   float64
-	AvgReq   float64
-	AvgRes   float64
-	AvgDelay float64
-	ConnMax  float64
-	ConnMin  float64
-	DnsMax   float64
-	DnsMin   float64
-	ReqMax   float64
-	ReqMin   float64
-	ResMax   float64
-	ResMin   float64
-	DelayMax float64
-	DelayMin float64
+	AvgConn       float64
+	AvgDNS        float64
+	AvgReq        float64
+	AvgRes        float64
+	AvgDelay      float64
+	AvgThroughput float64
+	ConnMax       float64
+	ConnMin       float64
+	DnsMax        float64
+	DnsMin        float64
+	ReqMax        float64
+	ReqMin        float64
+	ResMax        float64
+	ResMin        float64
+	DelayMax      float64
+	DelayMin      float64
 
 	Lats        []float64
 	ConnLats    []float64
@@ -297,6 +305,7 @@ type Report struct {
 	ResLats     []float64
 	DelayLats   []float64
 	Offsets     []float64
+	Sizes       []int64
 	StatusCodes []int
 
 	Total time.Duration
